@@ -1,3 +1,4 @@
+using Chatbot.ChatHub;
 using Chatbot.Core.Service;
 using Chatbot.Infrastructure.Middleware;
 using FluentValidation;
@@ -32,6 +33,7 @@ builder.Services.AddMediatR(cgd => cgd.RegisterServicesFromAssembly(Assembly.Get
 builder.Services.AddScoped<UserSettingService>();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddControllers();
+builder.Services.AddSignalR(); // Add SignalR for real-time communication
 
 // Add Swagger for API documentation
 builder.Services.AddSwaggerGen();
@@ -54,6 +56,7 @@ app.UseHttpsRedirection();
 app.UseSerilogRequestLogging(); // Log HTTP requests
 app.UseRouting();
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
 
 //todo: add authentication and authorization
 //app.UseAuthorization();
@@ -69,7 +72,7 @@ if (!builder.Environment.IsEnvironment("Local"))
 
 app.UseSpa(sap =>
 {
-    sap.Options.SourcePath = "...ClientApp"; // Angular development path
+    sap.Options.SourcePath = ".ClientApp"; // Angular development path
     if (builder.Environment.IsEnvironment("Local"))
     {
         sap.UseProxyToSpaDevelopmentServer(builder.Configuration.GetValue<string>("Local:BaseUrl") ??
@@ -94,6 +97,4 @@ finally
 }
 
 
-//app.MapControllers();
-
-//app.Run();
+app.Run();
